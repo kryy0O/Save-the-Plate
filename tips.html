@@ -6,6 +6,7 @@
     <title>Save the Plate - Storage Tips</title>
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="photos.js"></script>
 </head>
 <body>
 
@@ -44,6 +45,7 @@
     </div>
 
     <div class="grid" id="tips"></div>
+    <p class="credit">Food photos: <a href="https://commons.wikimedia.org" target="_blank">Wikimedia Commons</a> (free licenses, e.g. CC BY-SA)</p>
 </section>
 
 <footer class="footer">
@@ -83,20 +85,20 @@
 
 <script>
     const tips = [
-        { food: "Bread", place: "Room temp", days: "3–4 days", tip: "Freeze slices you won't eat soon. Toast them straight from the freezer." },
-        { food: "Rice (cooked)", place: "Fridge", days: "3–4 days", tip: "Cool quickly and keep in a closed box. Great for fried rice." },
-        { food: "Milk", place: "Fridge", days: "5–7 days after opening", tip: "Keep it at the back of the fridge, not in the door." },
-        { food: "Eggs", place: "Fridge", days: "3–5 weeks", tip: "Keep in the box. Float test: if it floats, throw it away." },
-        { food: "Banana", place: "Room temp", days: "3–5 days", tip: "Brown bananas are perfect for pancakes or smoothies." },
-        { food: "Tomato", place: "Room temp", days: "3–5 days", tip: "Move to the fridge only when fully ripe." },
-        { food: "Potato", place: "Room temp", days: "2–4 weeks", tip: "Keep in a dark, cool place, away from onions." },
-        { food: "Onion", place: "Room temp", days: "1–2 months", tip: "Keep dry with air around them. Cut onion goes in the fridge." },
-        { food: "Leafy vegetables", place: "Fridge", days: "3–7 days", tip: "Wrap in a paper towel to soak up extra water." },
-        { food: "Chicken (raw)", place: "Fridge", days: "1–2 days", tip: "Freeze if you won't cook it within 2 days." },
-        { food: "Chicken (raw)", place: "Freezer", days: "up to 9 months", tip: "Thaw in the fridge, not on the table." },
-        { food: "Leftover meals", place: "Freezer", days: "2–3 months", tip: "Write the date on the box before freezing." },
-        { food: "Cheese", place: "Fridge", days: "3–4 weeks", tip: "Wrap in paper, then a bag, so it can breathe." },
-        { food: "Apples", place: "Fridge", days: "4–6 weeks", tip: "Keep away from other fruit. Apples make them ripen faster." }
+        { food: "Bread", photo: "bread", place: "Room temp", days: "3–4 days", tip: "Freeze slices you won't eat soon. Toast them straight from the freezer." },
+        { food: "Rice (cooked)", photo: "rice", place: "Fridge", days: "3–4 days", tip: "Cool quickly and keep in a closed box. Great for fried rice." },
+        { food: "Milk", photo: "milk", place: "Fridge", days: "5–7 days after opening", tip: "Keep it at the back of the fridge, not in the door." },
+        { food: "Eggs", photo: "egg", place: "Fridge", days: "3–5 weeks", tip: "Keep in the box. Float test: if it floats, throw it away." },
+        { food: "Banana", photo: "banana", place: "Room temp", days: "3–5 days", tip: "Brown bananas are perfect for pancakes or smoothies." },
+        { food: "Tomato", photo: "tomato", place: "Room temp", days: "3–5 days", tip: "Move to the fridge only when fully ripe." },
+        { food: "Potato", photo: "potato", place: "Room temp", days: "2–4 weeks", tip: "Keep in a dark, cool place, away from onions." },
+        { food: "Onion", photo: "onion", place: "Room temp", days: "1–2 months", tip: "Keep dry with air around them. Cut onion goes in the fridge." },
+        { food: "Leafy vegetables", photo: "greens", place: "Fridge", days: "3–7 days", tip: "Wrap in a paper towel to soak up extra water." },
+        { food: "Chicken (raw)", photo: "chicken", place: "Fridge", days: "1–2 days", tip: "Freeze if you won't cook it within 2 days." },
+        { food: "Chicken (raw)", photo: "chicken", place: "Freezer", days: "up to 9 months", tip: "Thaw in the fridge, not on the table." },
+        { food: "Leftover meals", photo: "meal", place: "Freezer", days: "2–3 months", tip: "Write the date on the box before freezing." },
+        { food: "Cheese", photo: "cheese", place: "Fridge", days: "3–4 weeks", tip: "Wrap in paper, then a bag, so it can breathe." },
+        { food: "Apples", photo: "apple", place: "Fridge", days: "4–6 weeks", tip: "Keep away from other fruit. Apples make them ripen faster." }
     ];
 
     const icons = { "Fridge": "🧊", "Freezer": "❄️", "Room temp": "🏠" };
@@ -121,9 +123,9 @@
         list.forEach(function (t) {
             box.innerHTML +=
                 '<div class="card">' +
-                '<div class="emoji">' + icons[t.place] + '</div>' +
+                photoTag(t.photo, 'food-photo', 500) +
                 '<h3>' + t.food + '</h3>' +
-                '<p><span class="sdg">' + t.place + '</span> ' + t.days + '</p>' +
+                '<p><span class="sdg">' + icons[t.place] + ' ' + t.place + '</span> ' + t.days + '</p>' +
                 '<p>' + t.tip + '</p>' +
                 '</div>';
         });

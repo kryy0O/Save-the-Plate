@@ -6,6 +6,7 @@
     <title>Save the Plate - Leftover Recipes</title>
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="photos.js"></script>
 </head>
 <body>
 
@@ -41,6 +42,7 @@
 
     <p id="message"></p>
     <div class="grid" id="results"></div>
+    <p class="credit">Food photos: <a href="https://commons.wikimedia.org" target="_blank">Wikimedia Commons</a> (free licenses, e.g. CC BY-SA)</p>
 </section>
 
 <footer class="footer">
@@ -110,7 +112,7 @@
     // Make a checkbox for every ingredient
     const box = document.getElementById("ingredients");
     ingredients.forEach(function (item) {
-        box.innerHTML += '<label><input type="checkbox" value="' + item + '">' + item + '</label>';
+        box.innerHTML += '<label><input type="checkbox" value="' + item + '">' + photoTag(item, 'chip-photo', 120) + item + '</label>';
     });
 
     function findRecipes() {
@@ -151,7 +153,7 @@
                 : '<p class="missing">Missing: ' + x.missing.join(", ") + '</p>';
             results.innerHTML +=
                 '<div class="card">' +
-                '<div class="emoji">' + x.recipe.emoji + '</div>' +
+                '<div class="photo-row">' + x.recipe.needs.map(function (n) { return photoTag(n, '', 160); }).join('') + '</div>' +
                 '<h3>' + x.recipe.name + '</h3>' +
                 '<p>Needs: ' + x.recipe.needs.join(", ") + '</p>' +
                 status +

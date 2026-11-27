@@ -6,6 +6,7 @@
     <title>Save the Plate - Food Sharing</title>
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="photos.js"></script>
 </head>
 <body>
 
@@ -64,6 +65,7 @@
         <p id="count"></p>
     </div>
     <div class="grid" id="posts"></div>
+    <p class="credit">Food photos: <a href="https://commons.wikimedia.org" target="_blank">Wikimedia Commons</a> (free licenses, e.g. CC BY-SA)</p>
 </section>
 
 <script>
@@ -80,6 +82,19 @@
         posts = JSON.parse(localStorage.getItem("posts")) || examples;
     } catch (e) {
         posts = examples;
+    }
+
+    // Pick a photo: first by food name, then by food type
+    function pickPhoto(p) {
+        const name = p.food.toLowerCase();
+        const words = { banana: "banana", bread: "bread", roll: "bread", rice: "rice", apple: "apple",
+                        milk: "milk", egg: "egg", tomato: "tomato", potato: "potato", onion: "onion",
+                        noodle: "noodles", cheese: "cheese", cabbage: "cabbage", chicken: "chicken" };
+        for (const w in words) {
+            if (name.includes(w)) return words[w];
+        }
+        const byType = { "🍞": "bread", "🍎": "apple", "🥬": "cabbage", "🍚": "meal", "🥛": "milk" };
+        return byType[p.type];
     }
 
     function save() {
@@ -137,7 +152,7 @@
 
             box.innerHTML +=
                 '<div class="card center" style="' + (p.taken ? 'opacity:0.6' : '') + '">' +
-                '<div class="emoji">' + p.type + '</div>' +
+                (pickPhoto(p) ? photoTag(pickPhoto(p), 'food-photo', 500) : '<div class="emoji">' + p.type + '</div>') +
                 '<h3>' + p.food + '</h3>' +
                 '<p><i class="bx bx-map"></i> ' + p.place + '</p>' +
                 '<p><i class="bx bx-time"></i> ' + p.time + '</p>' +
