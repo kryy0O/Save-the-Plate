@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save the Plate - Nutrition Diary</title>
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+    <link rel="stylesheet" href="style.css?v=5">
+    <script src="photos.js?v=5"></script>
+</head>
+<body>
+
+<header class="header">
+    <a href="index.html" class="logo"><i class='bx bxs-leaf'></i>Save the Plate</a>
+    <nav class="navbar">
+        <a href="index.html">Home</a>
+        <a href="recipes.html">Recipes</a>
+        <a href="tips.html">Tips</a>
+        <a href="tracker.html">Tracker</a>
+        <a href="share.html">Share</a>
+        <a href="nutrition.html" class="active">Nutrition</a>
+        <a href="quiz.html">Quiz</a>
+    </nav>
+    <div class="icons">
+        <a href="recipes.html" class='bx bx-search' title="Find recipes"></a>
+        <a href="tracker.html" class='bx bx-calendar' title="Expiry tracker"></a>
+        <div class='bx bx-menu' id="menu-icon"></div>
+    </div>
+</header>
+
+<section class="page-banner">
+    <h1>Nutrition Diary</h1>
+    <p>Log what you eat, see your calories and macros, and cook only the portion you need. Less leftovers, less waste.</p>
+</section>
+
+<section>
+    <!-- ===== Energy summary ===== -->
+    <div class="nut-top">
+        <div class="card nut-summary">
+            <h3>Energy Summary</h3>
+            <div class="rings">
+                <div class="ring-box">
+                    <div class="ring" id="ringConsumed"><span id="kcalConsumed">0</span></div>
+                    <p>Consumed</p>
+                </div>
+                <div class="ring-box">
+                    <div class="ring" id="ringMacro"><span id="kcalMacro" style="font-size:18px">Macros</span></div>
+                    <p>Macro split</p>
+                </div>
+                <div class="ring-box">
+                    <div class="ring" id="ringLeft"><span id="kcalLeft">2000</span></div>
+                    <p>Remaining</p>
+                </div>
+            </div>
+            <div class="legend">
+                <span><i class="dot" style="background:#2E7D4F"></i>Protein <b id="pctP">0%</b></span>
+                <span><i class="dot" style="background:#E9B730"></i>Carbs <b id="pctC">0%</b></span>
+                <span><i class="dot" style="background:#8e6cc9"></i>Fat <b id="pctF">0%</b></span>
+            </div>
+            <div class="macro-tiles">
+                <div><b id="gP">0 g</b><span>Protein</span></div>
+                <div><b id="gC">0 g</b><span>Carbs</span></div>
+                <div><b id="gF">0 g</b><span>Fat</span></div>
+                <div><b id="gFib">0 g</b><span>Fiber</span></div>
+            </div>
+        </div>
+
+        <div class="card nut-targets">
+            <h3>Daily Targets</h3>
+            <div id="bars"></div>
+            <div class="target-edit">
+                <label>Calorie goal
+                    <input type="number" id="goal" min="1000" max="5000" step="50" value="2000" oninput="setGoal()">
+                </label>
+                <small>Split: 25% protein · 50% carbs · 25% fat</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Add food ===== -->
+    <div class="form-box">
+        <h3 style="color:#17201A;margin-bottom:8px">Add food to your diary</h3>
+        <select id="foodSelect" onchange="preview()"></select>
+        <input type="number" id="grams" min="1" max="2000" value="100" oninput="preview()"> g
+        <select id="meal">
+            <option>Breakfast</option>
+            <option>Lunch</option>
+            <option>Dinner</option>
+            <option>Snacks</option>
+        </select>
+        <button class="btn" onclick="addEntry()">+ Add</button>
+        <p id="preview" class="preview"></p>
+        <p id="error" class="missing"></p>
+    </div>
+
+    <!-- ===== Diary ===== -->
+    <div class="card">
+        <div class="diary-head">
+            <h3>Today's Diary</h3>
+            <button class="btn outline" onclick="clearDiary()">Clear day</button>
+        </div>
+        <table class="diary">
+            <thead>
+                <tr><th></th><th>Food</th><th>Amount</th><th>kcal</th><th>Protein</th><th>Carbs</th><th>Fat</th><th></th></tr>
+            </thead>
+            <tbody id="diary"></tbody>
+        </table>
+    </div>
+
+    <p class="credit">Nutrition values per 100 g are approximate, based on USDA FoodData Central. Food photos: <a href="https://commons.wikimedia.org" target="_blank">Wikimedia Commons</a>.</p>
+</section>
+
+<style>
+    .nut-top { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; margin-bottom: 24px; }
+    .rings { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 16px; margin: 18px 0; }
+    .ring-box { text-align: center; }
+    .ring {
+        width: 130px; height: 130px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        background: conic-gradient(#E8452C 0deg, #eee 0deg);
+        position: relative; transition: background 0.5s;
+    }
+    .ring::before { content: ""; position: absolute; inset: 14px; background: #fff; border-radius: 50%; }
+    .ring span { position: relative; font-size: 24px; font-weight: 700; color: #17201A; }
+    .ring-box p { margin-top: 8px; font-weight: 600; }
+    .legend { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; font-size: 15px; }
+    .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+    .bar-row { margin-bottom: 14px; }
+    .bar-label { display: flex; justify-content: space-between; font-size: 15px; font-weight: 500; }
+    .bar { height: 12px; background: #f1f1f1; border-radius: 10px; overflow: hidden; margin-top: 4px; }
+    .bar div { height: 100%; border-radius: 10px; transition: width 0.6s; }
+    .target-edit { margin-top: 10px; font-weight: 500; }
+    .target-edit input { width: 120px; padding: 8px 14px; font-size: 15px; border: 2px solid #DCE5D7; border-radius: 30px; margin-left: 8px; outline: none; }
+    .target-edit input:focus { border-color: #E8452C; }
+    .macro-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
+    .macro-tiles div { background: #EEF4EA; border-radius: 14px; padding: 12px; text-align: center; }
+    .macro-tiles b { display: block; font-size: 20px; color: #17201A; }
+    .macro-tiles span { font-size: 13px; color: #888; }
+    .target-edit small { display: block; color: #888; }
+    .form-box input[type="number"] { padding: 12px 14px; font-size: 15px; border: 2px solid #DCE5D7; border-radius: 30px; width: 100px; margin: 6px; outline: none; }
+    .preview { font-weight: 500; color: #2E7D4F; margin-top: 8px; }
+    .diary-head { display: flex; justify-content: space-between; align-items: center; }
+    .diary { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    .diary th { text-align: left; font-size: 14px; color: #888; padding: 8px; border-bottom: 2px solid #f1f1f1; }
+    .diary td { padding: 8px; border-bottom: 1px solid #f5f5f5; }
+    .diary .meal-row td { background: #EEF4EA; font-weight: 600; color: #1F5135; }
+    .diary-photo { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; display: block; }
+    .diary .emoji { width: 44px; height: 44px; font-size: 24px; margin: 0; }
+    .diary tfoot td, .total-row td { font-weight: 700; color: #17201A; border-top: 2px solid #f1f1f1; }
+    @media (max-width: 840px) {
+        .nut-top { grid-template-columns: 1fr; }
+        .rings { flex-wrap: nowrap; gap: 6px; }
+        .ring { width: 86px; height: 86px; }
+        .ring::before { inset: 10px; }
+        .ring span { font-size: 16px; }
+        #kcalMacro { font-size: 12px !important; }
+        .ring-box p { font-size: 13px; }
+        .macro-tiles { grid-template-columns: repeat(2, 1fr); }
+        .diary { font-size: 13px; }
+        .diary th:nth-child(5), .diary td:nth-child(5),
+        .diary th:nth-child(6), .diary td:nth-child(6),
+        .diary th:nth-child(7), .diary td:nth-child(7) { display: none; }
+    }
+</style>
+
+<script>
+    // Nutrition per 100 g (approximate, USDA FoodData Central)
+    const FOODS = {
+        rice:    { name: "Rice, white, cooked",   kcal: 130, p: 2.7,  c: 28.2, f: 0.3,  fib: 0.4 },
+        egg:     { name: "Egg, whole",            kcal: 143, p: 12.6, c: 0.7,  f: 9.5,  fib: 0 },
+        bread:   { name: "Bread, white",          kcal: 265, p: 9.0,  c: 49.0, f: 3.2,  fib: 2.7 },
+        tomato:  { name: "Tomato, raw",           kcal: 18,  p: 0.9,  c: 3.9,  f: 0.2,  fib: 1.2 },
+        potato:  { name: "Potato, raw",           kcal: 77,  p: 2.0,  c: 17.0, f: 0.1,  fib: 2.2 },
+        onion:   { name: "Onion, raw",            kcal: 40,  p: 1.1,  c: 9.3,  f: 0.1,  fib: 1.7 },
+        noodles: { name: "Noodles, cooked",       kcal: 138, p: 4.5,  c: 25.0, f: 2.1,  fib: 1.2 },
+        milk:    { name: "Milk, whole",           kcal: 61,  p: 3.2,  c: 4.8,  f: 3.3,  fib: 0 },
+        banana:  { name: "Banana",                kcal: 89,  p: 1.1,  c: 22.8, f: 0.3,  fib: 2.6 },
+        cheese:  { name: "Cheese, cheddar",       kcal: 403, p: 25.0, c: 1.3,  f: 33.0, fib: 0 },
+        cabbage: { name: "Cabbage, raw",          kcal: 25,  p: 1.3,  c: 5.8,  f: 0.1,  fib: 2.5 },
+        chicken: { name: "Chicken breast, cooked",kcal: 165, p: 31.0, c: 0,    f: 3.6,  fib: 0 },
+        apple:   { name: "Apple",                 kcal: 52,  p: 0.3,  c: 13.8, f: 0.2,  fib: 2.4 },
+        greens:  { name: "Broccoli, raw",         kcal: 34,  p: 2.8,  c: 6.6,  f: 0.4,  fib: 2.6 }
+    };
+
+    let goal = 2000;
+    let diary = [];
+    try {
+        diary = JSON.parse(localStorage.getItem("diary")) || [];
+        goal = Number(localStorage.getItem("goal")) || 2000;
+    } catch (e) {}
+    document.getElementById("goal").value = goal;
+
+    function save() {
+        try {
+            localStorage.setItem("diary", JSON.stringify(diary));
+            localStorage.setItem("goal", goal);
+        } catch (e) {}
+    }
+
+    // Fill the food list
+    const select = document.getElementById("foodSelect");
+    for (const key in FOODS) {
+        select.innerHTML += '<option value="' + key + '">' + FOODS[key].name + '</option>';
+    }
+
+    // Nutrition for an amount in grams
+    function calc(key, grams) {
+        const f = FOODS[key], k = grams / 100;
+        return { kcal: f.kcal * k, p: f.p * k, c: f.c * k, f: f.f * k, fib: f.fib * k };
+    }
+    const r0 = n => Math.round(n);
+    const r1 = n => Math.round(n * 10) / 10;
+
+    function preview() {
+        const grams = Number(document.getElementById("grams").value);
+        if (!grams || grams <= 0) { document.getElementById("preview").textContent = ""; return; }
+        const n = calc(select.value, grams);
+        document.getElementById("preview").textContent =
+            grams + " g = " + r0(n.kcal) + " kcal · " + r1(n.p) + " g protein · " + r1(n.c) + " g carbs · " + r1(n.f) + " g fat";
+    }
+
+    function addEntry() {
+        const grams = Number(document.getElementById("grams").value);
+        const error = document.getElementById("error");
+        if (!grams || grams <= 0 || grams > 2000) {
+            error.textContent = "Please enter an amount between 1 and 2000 g.";
+            return;
+        }
+        error.textContent = "";
+        diary.push({ key: select.value, grams: grams, meal: document.getElementById("meal").value });
+        save();
+        render();
+        preview();
+    }
+
+    function removeEntry(i) { diary.splice(i, 1); save(); render(); }
+
+    function clearDiary() {
+        diary = [];
+        save();
+        render();
+    }
+
+    function setGoal() {
+        const g = Number(document.getElementById("goal").value);
+        if (g >= 1000 && g <= 5000) { goal = g; save(); render(); }
+    }
+
+    function ring(id, parts) {
+        // parts: [[color, degrees], ...]
+        let deg = 0, stops = [];
+        parts.forEach(function (p) {
+            stops.push(p[0] + " " + deg + "deg " + (deg + p[1]) + "deg");
+            deg += p[1];
+        });
+        stops.push("#eeeeee " + deg + "deg 360deg");
+        document.getElementById(id).style.background = "conic-gradient(" + stops.join(",") + ")";
+    }
+
+    function render() {
+        // ----- totals -----
+        const t = { kcal: 0, p: 0, c: 0, f: 0, fib: 0 };
+        diary.forEach(function (e) {
+            const n = calc(e.key, e.grams);
+            for (const k in t) t[k] += n[k];
+        });
+
+        document.getElementById("gP").textContent = r0(t.p) + " g";
+        document.getElementById("gC").textContent = r0(t.c) + " g";
+        document.getElementById("gF").textContent = r0(t.f) + " g";
+        document.getElementById("gFib").textContent = r0(t.fib) + " g";
+
+        // ----- rings -----
+        const used = Math.min(t.kcal / goal, 1);
+        const over = t.kcal > goal;
+        document.getElementById("kcalConsumed").textContent = r0(t.kcal);
+        ring("ringConsumed", [[over ? "#e53935" : "#E8452C", used * 360]]);
+
+        const left = goal - t.kcal;
+        document.getElementById("kcalLeft").textContent = r0(Math.abs(left));
+        document.getElementById("kcalLeft").style.color = left < 0 ? "#e53935" : "#17201A";
+        ring("ringLeft", [["#2E7D4F", Math.max(left, 0) / goal * 360]]);
+
+        const pK = t.p * 4, cK = t.c * 4, fK = t.f * 9, sum = pK + cK + fK;
+        if (sum > 0) {
+            ring("ringMacro", [["#2E7D4F", pK / sum * 360], ["#E9B730", cK / sum * 360], ["#8e6cc9", fK / sum * 360]]);
+            document.getElementById("pctP").textContent = r0(pK / sum * 100) + "%";
+            document.getElementById("pctC").textContent = r0(cK / sum * 100) + "%";
+            document.getElementById("pctF").textContent = r0(fK / sum * 100) + "%";
+        } else {
+            ring("ringMacro", []);
+            ["pctP", "pctC", "pctF"].forEach(function (id) { document.getElementById(id).textContent = "0%"; });
+        }
+
+        // ----- target bars (25% protein, 50% carbs, 25% fat) -----
+        const targets = [
+            { name: "Energy",  val: t.kcal, max: goal,              unit: "kcal", color: "#1F5135" },
+            { name: "Protein", val: t.p,    max: goal * 0.25 / 4,   unit: "g",    color: "#2E7D4F" },
+            { name: "Carbs",   val: t.c,    max: goal * 0.50 / 4,   unit: "g",    color: "#E9B730" },
+            { name: "Fat",     val: t.f,    max: goal * 0.25 / 9,   unit: "g",    color: "#8e6cc9" },
+            { name: "Fiber",   val: t.fib,  max: 28,                unit: "g",    color: "#66bb6a" }
+        ];
+        document.getElementById("bars").innerHTML = targets.map(function (b) {
+            const pct = Math.min(b.val / b.max * 100, 100);
+            const col = b.val > b.max * 1.05 ? "#e53935" : b.color;
+            return '<div class="bar-row"><div class="bar-label"><span>' + b.name + '</span><span>' +
+                   r0(b.val) + ' / ' + r0(b.max) + ' ' + b.unit + ' (' + r0(b.val / b.max * 100) + '%)</span></div>' +
+                   '<div class="bar"><div style="width:' + pct + '%;background:' + col + '"></div></div></div>';
+        }).join("");
+
+        // ----- diary table grouped by meal -----
+        const body = document.getElementById("diary");
+        if (diary.length === 0) {
+            body.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px">No food yet. Add something above! 🍽️</td></tr>';
+            return;
+        }
+        let html = "";
+        ["Breakfast", "Lunch", "Dinner", "Snacks"].forEach(function (meal) {
+            const rows = diary.map(function (e, i) { return { e: e, i: i }; }).filter(function (x) { return x.e.meal === meal; });
+            if (rows.length === 0) return;
+            html += '<tr class="meal-row"><td colspan="8">' + meal + '</td></tr>';
+            rows.forEach(function (x) {
+                const n = calc(x.e.key, x.e.grams);
+                html += '<tr><td>' + photoTag(x.e.key, "diary-photo", 120) + '</td>' +
+                        '<td>' + FOODS[x.e.key].name + '</td><td>' + x.e.grams + ' g</td>' +
+                        '<td>' + r0(n.kcal) + '</td><td>' + r1(n.p) + ' g</td><td>' + r1(n.c) + ' g</td><td>' + r1(n.f) + ' g</td>' +
+                        '<td><button class="delete" onclick="removeEntry(' + x.i + ')" title="Remove">✕</button></td></tr>';
+            });
+        });
+        html += '<tr class="total-row"><td></td><td>Total</td><td></td><td>' + r0(t.kcal) + '</td><td>' + r1(t.p) +
+                ' g</td><td>' + r1(t.c) + ' g</td><td>' + r1(t.f) + ' g</td><td></td></tr>';
+        body.innerHTML = html;
+    }
+
+    preview();
+    render();
+</script>
+
+<footer class="footer">
+    <div class="footer-grid">
+        <div>
+            <a href="index.html" class="logo"><i class='bx bxs-leaf'></i>Save the Plate</a>
+            <p>Helping students waste less food, one plate at a time.</p>
+            <div class="social">
+                <a href="#"><i class='bx bxl-facebook'></i></a>
+                <a href="#"><i class='bx bxl-instagram'></i></a>
+                <a href="#"><i class='bx bxl-github'></i></a>
+            </div>
+        </div>
+        <div>
+            <h4>Pages</h4>
+            <a href="index.html">Home</a>
+            <a href="recipes.html">Recipes</a>
+            <a href="tips.html">Tips</a>
+            <a href="tracker.html">Tracker</a>
+            <a href="share.html">Share</a>
+            <a href="nutrition.html">Nutrition</a>
+            <a href="quiz.html">Quiz</a>
+        </div>
+        <div>
+            <h4>SDG Goals</h4>
+            <a href="index.html#about">SDG 2 · Zero Hunger</a>
+            <a href="index.html#about">SDG 12 · Responsible Consumption</a>
+        </div>
+        <div>
+            <h4>Project</h4>
+            <p>Web Design Final Project</p>
+            <p>張守忠 · 1133584</p>
+            <p>Yuan Ze University</p>
+        </div>
+    </div>
+    <p class="copyright">© 2026 Save the Plate. All rights reserved.</p>
+</footer>
+
+<script src="script.js?v=5"></script>
+<script src="chatbot.js?v=5"></script>
+</body>
+</html>

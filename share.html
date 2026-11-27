@@ -5,19 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Save the Plate - Food Sharing</title>
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
-    <link rel="stylesheet" href="style.css?v=4">
-    <script src="photos.js?v=4"></script>
+    <link rel="stylesheet" href="style.css?v=5">
+    <script src="photos.js?v=5"></script>
 </head>
 <body>
 
 <header class="header">
-    <a href="index.html" class="logo"><i class='bx bxs-leaf'></i>Save<span>Plate</span></a>
+    <a href="index.html" class="logo"><i class='bx bxs-leaf'></i>Save the Plate</a>
     <nav class="navbar">
         <a href="index.html">Home</a>
         <a href="recipes.html">Recipes</a>
         <a href="tips.html">Tips</a>
         <a href="tracker.html">Tracker</a>
         <a href="share.html" class="active">Share</a>
+        <a href="nutrition.html">Nutrition</a>
         <a href="quiz.html">Quiz</a>
     </nav>
     <div class="icons">
@@ -34,8 +35,8 @@
 
 <section>
     <div class="form-box">
-        <h3 style="color:#1d1d1d;margin-bottom:8px">Share your food</h3>
-        <input type="text" id="food" placeholder="Food, e.g. 2 bread rolls">
+        <h3 style="color:#17201A;margin-bottom:8px">Share your food</h3>
+        <input type="text" id="food" placeholder="2 bread rolls">
         <select id="type">
             <option value="🍞">Bread</option>
             <option value="🍎">Fruit</option>
@@ -44,15 +45,15 @@
             <option value="🥛">Drinks / Dairy</option>
             <option value="🍪">Snacks</option>
         </select>
-        <input type="text" id="place" placeholder="Place, e.g. Dorm A lobby">
-        <input type="text" id="time" placeholder="Pick-up time, e.g. Today 6 pm">
+        <input type="text" id="place" placeholder="Dorm A lobby">
+        <input type="text" id="time" placeholder="Today 6 pm">
         <br>
         <button class="btn" onclick="postFood()">Post</button>
         <p id="error" class="missing"></p>
     </div>
 
-    <div class="heading"><span>Available Now</span><h2>Shared Food</h2></div>
-    <div style="text-align:center;margin-bottom:20px">
+    <div class="heading"><span>Available Now</span><h2>Available now</h2></div>
+    <div class="filter-row">
         <select id="filter" onchange="showPosts()">
             <option value="all">All food</option>
             <option value="🍞">Bread</option>
@@ -65,6 +66,7 @@
         <p id="count"></p>
     </div>
     <div class="grid" id="posts"></div>
+    <style>.filter-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:20px}.filter-row p{color:var(--muted);font-weight:600}</style>
     <p class="credit">Food photos: <a href="https://commons.wikimedia.org" target="_blank">Wikimedia Commons</a> (free licenses, e.g. CC BY-SA)</p>
 </section>
 
@@ -173,7 +175,7 @@
 <footer class="footer">
     <div class="footer-grid">
         <div>
-            <a href="index.html" class="logo"><i class='bx bxs-leaf'></i>Save<span>Plate</span></a>
+            <a href="index.html" class="logo"><i class='bx bxs-leaf'></i>Save the Plate</a>
             <p>Helping students waste less food, one plate at a time.</p>
             <div class="social">
                 <a href="#"><i class='bx bxl-facebook'></i></a>
@@ -188,6 +190,7 @@
             <a href="tips.html">Tips</a>
             <a href="tracker.html">Tracker</a>
             <a href="share.html">Share</a>
+            <a href="nutrition.html">Nutrition</a>
             <a href="quiz.html">Quiz</a>
         </div>
         <div>
@@ -205,6 +208,7 @@
     <p class="copyright">© 2026 Save the Plate. All rights reserved.</p>
 </footer>
 
-<script src="script.js?v=4"></script>
+<script src="script.js?v=5"></script>
+<script src="chatbot.js?v=5"></script>
 </body>
 </html>

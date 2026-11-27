@@ -5,18 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Save the Plate - Expiry Tracker</title>
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=5">
+    <script src="photos.js?v=5"></script>
 </head>
 <body>
 
 <header class="header">
-    <a href="index.html" class="logo"><i class='bx bxs-leaf'></i>Save<span>Plate</span></a>
+    <a href="index.html" class="logo"><i class='bx bxs-leaf'></i>Save the Plate</a>
     <nav class="navbar">
         <a href="index.html">Home</a>
         <a href="recipes.html">Recipes</a>
         <a href="tips.html">Tips</a>
         <a href="tracker.html" class="active">Tracker</a>
         <a href="share.html">Share</a>
+        <a href="nutrition.html">Nutrition</a>
         <a href="quiz.html">Quiz</a>
     </nav>
     <div class="icons">
@@ -28,25 +30,39 @@
 
 <section class="page-banner">
     <h1>Expiry Tracker</h1>
-    <p>Add your food and its expiry date. Green = OK, orange = eat soon, red = expired.</p>
+    <p>Write down what is in your fridge. The list puts the food you should eat first at the top.</p>
 </section>
 
 <section>
 
-    <div class="form-box">
-        <input type="text" id="food" placeholder="Food name">
-        <input type="date" id="date">
-        <button class="btn" onclick="addFood()">Add</button>
-        <p id="error" class="missing"></p>
+    <div class="tracker-layout">
+        <div>
+            <div class="form-box">
+                <h3>Add food</h3>
+                <input type="text" id="food" placeholder="Milk">
+                <input type="date" id="date">
+                <button class="btn" onclick="addFood()">Add</button>
+                <p id="error" class="missing"></p>
+                <p class="quick-label">Quick add</p>
+                <div class="quick" id="quick"></div>
+            </div>
+            <div class="status-row">
+                <div class="status ok"><b id="nOk">0</b><span>Fresh</span></div>
+                <div class="status soon"><b id="nSoon">0</b><span>Eat in 2 days</span></div>
+                <div class="status bad"><b id="nBad">0</b><span>Expired</span></div>
+            </div>
+        </div>
+        <div>
+            <h3 class="list-title">In your fridge</h3>
+            <div id="list"></div>
+        </div>
     </div>
-
-    <div id="list"></div>
 </section>
 
 <footer class="footer">
     <div class="footer-grid">
         <div>
-            <a href="index.html" class="logo"><i class='bx bxs-leaf'></i>Save<span>Plate</span></a>
+            <a href="index.html" class="logo"><i class='bx bxs-leaf'></i>Save the Plate</a>
             <p>Helping students waste less food, one plate at a time.</p>
             <div class="social">
                 <a href="#"><i class='bx bxl-facebook'></i></a>
@@ -61,6 +77,7 @@
             <a href="tips.html">Tips</a>
             <a href="tracker.html">Tracker</a>
             <a href="share.html">Share</a>
+            <a href="nutrition.html">Nutrition</a>
             <a href="quiz.html">Quiz</a>
         </div>
         <div>
@@ -77,6 +94,33 @@
     </div>
     <p class="copyright">© 2026 Save the Plate. All rights reserved.</p>
 </footer>
+
+<style>
+    .tracker-layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: 32px; align-items: start; }
+    .quick-label { font-weight: 600; margin-top: 14px; color: var(--muted); font-size: 14px; }
+    .quick { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .quick button { display: inline-flex; align-items: center; gap: 6px; font: 600 14px var(--body); color: var(--ink);
+        background: #fff; border: 1.5px solid var(--line); border-radius: 999px; padding: 4px 12px 4px 4px; cursor: pointer; }
+    .quick button:hover { border-color: var(--leaf-2); }
+    .quick img, .quick .emoji { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; font-size: 16px; margin: 0; }
+    .status-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .status { border-radius: 18px; padding: 16px; background: #fff; border: 1px solid var(--line); }
+    .status b { display: block; font-family: var(--display); font-size: 38px; line-height: 1; }
+    .status span { font-size: 14px; color: var(--muted); }
+    .status.ok b { color: var(--leaf-2); }
+    .status.soon b { color: #D48A1C; }
+    .status.bad b { color: var(--tomato); }
+    .list-title { margin-bottom: 6px; }
+    .food-item { gap: 14px; justify-content: flex-start; }
+    .food-item .thumb img, .food-item .thumb .emoji { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; font-size: 24px; margin: 0; }
+    .food-item .info { flex: 1; }
+    .food-item .info small { display: block; color: var(--muted); }
+    .pill { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--mint); color: var(--leaf); white-space: nowrap; }
+    .food-item.soon .pill { background: #FCEFD6; color: #9A5D07; }
+    .food-item.expired .pill { background: #FDE3DE; color: var(--tomato-dark); }
+    .empty { text-align: center; padding: 40px 20px; border: 2px dashed var(--line); border-radius: 18px; color: var(--muted); }
+    @media (max-width: 860px) { .tracker-layout { grid-template-columns: 1fr; } }
+</style>
 
 <script>
     // Load saved food from the browser
@@ -116,6 +160,33 @@
         showList();
     }
 
+    // Match a typed food name to a photo
+    function photoFor(name) {
+        const n = name.toLowerCase();
+        for (const key in PHOTOS) {
+            if (n.includes(key) || (key === "egg" && n.includes("egg")) || (key === "apple" && n.includes("apple"))) return key;
+        }
+        if (n.includes("noodle")) return "noodles";
+        if (n.includes("broccoli") || n.includes("lettuce") || n.includes("spinach")) return "greens";
+        return null;
+    }
+
+    // Quick add: common foods with a typical shelf life (days)
+    const QUICK = [["Milk", "milk", 5], ["Eggs", "egg", 21], ["Bread", "bread", 4], ["Banana", "banana", 4],
+                   ["Tomato", "tomato", 5], ["Cooked rice", "rice", 3], ["Cheese", "cheese", 21]];
+    document.getElementById("quick").innerHTML = QUICK.map(function (q, i) {
+        return '<button type="button" onclick="quickAdd(' + i + ')">' + photoTag(q[1], "q-photo", 80) + q[0] + '</button>';
+    }).join("");
+
+    function quickAdd(i) {
+        const d = new Date();
+        d.setDate(d.getDate() + QUICK[i][2]);
+        const date = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+        foods.push({ name: QUICK[i][0], date: date });
+        save();
+        showList();
+    }
+
     function removeFood(i) {
         foods.splice(i, 1);
         save();
@@ -126,8 +197,10 @@
         const list = document.getElementById("list");
         list.innerHTML = "";
 
+        let ok = 0, soon = 0, bad = 0;
         if (foods.length === 0) {
-            list.innerHTML = "<p>No food added yet.</p>";
+            list.innerHTML = '<div class="empty"><b>Your fridge list is empty.</b><br>Add food on the left, or tap a quick-add item.</div>';
+            ["nOk", "nSoon", "nBad"].forEach(function (id) { document.getElementById(id).textContent = 0; });
             return;
         }
 
@@ -137,22 +210,32 @@
         foods.forEach(function (f, i) {
             const d = daysLeft(f.date);
             let cls = "", text = "";
-            if (d < 0)       { cls = "expired"; text = "Expired " + (-d) + " day(s) ago"; }
-            else if (d === 0){ cls = "soon";    text = "Expires today!"; }
-            else if (d <= 2) { cls = "soon";    text = d + " day(s) left - eat soon"; }
-            else             { cls = "";        text = d + " days left"; }
+            if (d < 0)       { cls = "expired"; text = "Expired " + (-d) + (d === -1 ? " day ago" : " days ago"); bad++; }
+            else if (d === 0){ cls = "soon";    text = "Eat today"; soon++; }
+            else if (d <= 2) { cls = "soon";    text = d + (d === 1 ? " day left" : " days left"); soon++; }
+            else             { cls = "";        text = d + " days left"; ok++; }
+
+            const key = photoFor(f.name);
+            const thumb = key ? photoTag(key, "t-photo", 120) : '<div class="emoji">🥫</div>';
+            const nice = new Date(f.date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
             list.innerHTML +=
                 '<div class="food-item ' + cls + '">' +
-                '<span><b>' + f.name + '</b> · ' + text + '</span>' +
-                '<button class="delete" onclick="removeFood(' + i + ')">✕</button>' +
+                '<span class="thumb">' + thumb + '</span>' +
+                '<span class="info"><b>' + f.name + '</b><small>Use by ' + nice + '</small></span>' +
+                '<span class="pill">' + text + '</span>' +
+                '<button class="delete" onclick="removeFood(' + i + ')" aria-label="Remove ' + f.name + '">✕</button>' +
                 '</div>';
         });
+        document.getElementById("nOk").textContent = ok;
+        document.getElementById("nSoon").textContent = soon;
+        document.getElementById("nBad").textContent = bad;
     }
 
     showList();
 </script>
 
-<script src="script.js?v=4"></script>
+<script src="script.js?v=5"></script>
+<script src="chatbot.js?v=5"></script>
 </body>
 </html>

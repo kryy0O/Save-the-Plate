@@ -33,6 +33,7 @@ function photoTag(key, className, width) {
     let size = '';
     if (className === 'food-photo') size = 'style="height:180px;object-fit:cover" ';
     if (className === 'chip-photo') size = 'style="width:34px;height:34px;object-fit:cover;border-radius:50%" ';
+    if (className === 'diary-photo') size = 'style="width:44px;height:44px;object-fit:cover;border-radius:50%" ';
     if (className === '') size = 'style="width:64px;height:64px;object-fit:cover;border-radius:50%" ';
     return '<img class="' + className + '" ' + size + 'src="' + photoUrl(key, width) + '" alt="' + key + '" loading="lazy" ' +
            'onerror="this.outerHTML=\'<div class=&quot;emoji&quot;>' + p.emoji + '</div>\'">';
