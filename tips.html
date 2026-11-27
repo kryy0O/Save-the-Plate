@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Save the Plate - Storage Tips</title>
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
-    <link rel="stylesheet" href="style.css">
-    <script src="photos.js"></script>
+    <link rel="stylesheet" href="style.css?v=4">
+    <script src="photos.js?v=4"></script>
 </head>
 <body>
 
@@ -125,7 +125,8 @@
                 '<div class="card">' +
                 photoTag(t.photo, 'food-photo', 500) +
                 '<h3>' + t.food + '</h3>' +
-                '<p><span class="sdg">' + icons[t.place] + ' ' + t.place + '</span> ' + t.days + '</p>' +
+                '<p><span class="sdg">' + icons[t.place] + ' ' + t.place + '</span></p>' +
+                '<p class="match">⏱ ' + t.days + '</p>' +
                 '<p>' + t.tip + '</p>' +
                 '</div>';
         });
@@ -134,6 +135,6 @@
     showTips();
 </script>
 
-<script src="script.js"></script>
+<script src="script.js?v=4"></script>
 </body>
 </html>
