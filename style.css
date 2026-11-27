@@ -112,6 +112,13 @@ section {
     background: var(--main-dark);
     transform: translateY(-3px);
 }
+.btn:disabled {
+    cursor: default;
+    transform: none;
+}
+#options .btn:disabled {
+    opacity: 1;
+}
 .btn.outline {
     background: transparent;
     color: var(--main);

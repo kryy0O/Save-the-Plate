@@ -17,6 +17,7 @@
         <a href="tips.html">Tips</a>
         <a href="tracker.html">Tracker</a>
         <a href="share.html" class="active">Share</a>
+        <a href="quiz.html">Quiz</a>
     </nav>
     <div class="icons">
         <a href="recipes.html" class='bx bx-search' title="Find recipes"></a>
@@ -31,34 +32,128 @@
 </section>
 
 <section>
-    <p class="missing" style="text-align:center">(Under construction: posting will be added in the final version.)</p>
-
     <div class="form-box">
-        <input type="text" placeholder="Food, e.g. 2 bread rolls">
-        <input type="text" placeholder="Place, e.g. Dorm A lobby">
-        <input type="text" placeholder="Pick-up time">
-        <button class="btn">Post</button>
+        <h3 style="color:#1d1d1d;margin-bottom:8px">Share your food</h3>
+        <input type="text" id="food" placeholder="Food, e.g. 2 bread rolls">
+        <select id="type">
+            <option value="🍞">Bread</option>
+            <option value="🍎">Fruit</option>
+            <option value="🥬">Vegetables</option>
+            <option value="🍚">Cooked meal</option>
+            <option value="🥛">Drinks / Dairy</option>
+            <option value="🍪">Snacks</option>
+        </select>
+        <input type="text" id="place" placeholder="Place, e.g. Dorm A lobby">
+        <input type="text" id="time" placeholder="Pick-up time, e.g. Today 6 pm">
+        <br>
+        <button class="btn" onclick="postFood()">Post</button>
+        <p id="error" class="missing"></p>
     </div>
 
     <div class="heading"><span>Available Now</span><h2>Shared Food</h2></div>
-    <div class="grid">
-        <div class="card">
-            <div class="emoji">🥖</div>
-            <h3>2 bread rolls</h3>
-            <p>Dorm A lobby · Today 6 pm</p>
-        </div>
-        <div class="card">
-            <div class="emoji">🍌</div>
-            <h3>Bananas (4)</h3>
-            <p>Building 5 · Tomorrow 12 pm</p>
-        </div>
-        <div class="card">
-            <div class="emoji">🍚</div>
-            <h3>Cooked rice</h3>
-            <p>Dorm B kitchen · Today 8 pm</p>
-        </div>
+    <div style="text-align:center;margin-bottom:20px">
+        <select id="filter" onchange="showPosts()">
+            <option value="all">All food</option>
+            <option value="🍞">Bread</option>
+            <option value="🍎">Fruit</option>
+            <option value="🥬">Vegetables</option>
+            <option value="🍚">Cooked meal</option>
+            <option value="🥛">Drinks / Dairy</option>
+            <option value="🍪">Snacks</option>
+        </select>
+        <p id="count"></p>
     </div>
+    <div class="grid" id="posts"></div>
 </section>
+
+<script>
+    // Example posts shown the first time
+    const examples = [
+        { food: "2 bread rolls", type: "🍞", place: "Dorm A lobby", time: "Today 6 pm", taken: false },
+        { food: "Bananas (4)", type: "🍎", place: "Building 5", time: "Tomorrow 12 pm", taken: false },
+        { food: "Cooked rice", type: "🍚", place: "Dorm B kitchen", time: "Today 8 pm", taken: true }
+    ];
+
+    // Load saved posts from the browser
+    let posts;
+    try {
+        posts = JSON.parse(localStorage.getItem("posts")) || examples;
+    } catch (e) {
+        posts = examples;
+    }
+
+    function save() {
+        try { localStorage.setItem("posts", JSON.stringify(posts)); } catch (e) {}
+    }
+
+    function postFood() {
+        const food = document.getElementById("food").value.trim();
+        const place = document.getElementById("place").value.trim();
+        const time = document.getElementById("time").value.trim();
+        const error = document.getElementById("error");
+
+        if (food === "" || place === "" || time === "") {
+            error.textContent = "Please fill in food, place and pick-up time.";
+            return;
+        }
+        error.textContent = "";
+
+        // Newest post first
+        posts.unshift({ food: food, type: document.getElementById("type").value,
+                        place: place, time: time, taken: false });
+        save();
+        document.getElementById("food").value = "";
+        document.getElementById("place").value = "";
+        document.getElementById("time").value = "";
+        showPosts();
+    }
+
+    function claim(i) {
+        posts[i].taken = true;
+        save();
+        showPosts();
+    }
+
+    function removePost(i) {
+        posts.splice(i, 1);
+        save();
+        showPosts();
+    }
+
+    function showPosts() {
+        const filter = document.getElementById("filter").value;
+        const box = document.getElementById("posts");
+        box.innerHTML = "";
+        let shown = 0, available = 0;
+
+        posts.forEach(function (p, i) {
+            if (!p.taken) available++;
+            if (filter !== "all" && p.type !== filter) return;
+            shown++;
+
+            const button = p.taken
+                ? '<p class="match">✔ Claimed. Thank you for saving food!</p>'
+                : '<button class="btn" onclick="claim(' + i + ')">I\'ll take it</button>';
+
+            box.innerHTML +=
+                '<div class="card center" style="' + (p.taken ? 'opacity:0.6' : '') + '">' +
+                '<div class="emoji">' + p.type + '</div>' +
+                '<h3>' + p.food + '</h3>' +
+                '<p><i class="bx bx-map"></i> ' + p.place + '</p>' +
+                '<p><i class="bx bx-time"></i> ' + p.time + '</p>' +
+                button +
+                '<br><button class="delete" style="font-size:14px" onclick="removePost(' + i + ')" title="Remove">✕ Remove</button>' +
+                '</div>';
+        });
+
+        if (shown === 0) {
+            box.innerHTML = '<p style="text-align:center">No food here yet. Be the first to share!</p>';
+        }
+        document.getElementById("count").textContent = available + " item(s) still available";
+    }
+
+    showPosts();
+</script>
 
 <footer class="footer">
     <div class="footer-grid">
@@ -78,6 +173,7 @@
             <a href="tips.html">Tips</a>
             <a href="tracker.html">Tracker</a>
             <a href="share.html">Share</a>
+            <a href="quiz.html">Quiz</a>
         </div>
         <div>
             <h4>SDG Goals</h4>
