@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     <link rel="stylesheet" href="style.css?v=5">
     <script src="photos.js?v=5"></script>
+    <script src="foods.js?v=5"></script>
 </head>
 <body>
 
@@ -78,19 +79,31 @@
     </div>
 
     <!-- ===== Add food ===== -->
-    <div class="form-box">
-        <h3 style="color:#17201A;margin-bottom:8px">Add food to your diary</h3>
-        <select id="foodSelect" onchange="preview()"></select>
-        <input type="number" id="grams" min="1" max="2000" value="100" oninput="preview()"> g
-        <select id="meal">
-            <option>Breakfast</option>
-            <option>Lunch</option>
-            <option>Dinner</option>
-            <option>Snacks</option>
-        </select>
-        <button class="btn" onclick="addEntry()">+ Add</button>
-        <p id="preview" class="preview"></p>
+    <div class="form-box add-box">
+        <h3>Add food to your diary</h3>
+        <div class="add-row">
+            <div class="search-wrap">
+                <i class='bx bx-search' aria-hidden="true"></i>
+                <input type="text" id="foodSearch" placeholder="Search: egg, 肉包, bubble tea, sandwich…" autocomplete="off"
+                       role="combobox" aria-expanded="false" aria-controls="foodResults" aria-label="Search food">
+                <ul id="foodResults" class="results" role="listbox"></ul>
+            </div>
+            <input type="number" id="qty" min="0.25" max="2000" step="0.25" value="1" aria-label="Amount">
+            <select id="unit" aria-label="Unit"></select>
+            <select id="meal" aria-label="Meal">
+                <option>Breakfast</option>
+                <option>Lunch</option>
+                <option>Dinner</option>
+                <option>Snacks</option>
+            </select>
+            <button class="btn" onclick="addEntry()">Add to diary</button>
+        </div>
+        <div class="picked" id="picked"></div>
         <p id="error" class="missing"></p>
+        <div class="popular">
+            <span>Popular with students:</span>
+            <div id="popular"></div>
+        </div>
     </div>
 
     <!-- ===== Diary ===== -->
@@ -161,26 +174,37 @@
         .diary th:nth-child(6), .diary td:nth-child(6),
         .diary th:nth-child(7), .diary td:nth-child(7) { display: none; }
     }
+    .add-box h3 { margin-bottom: 12px; }
+    .add-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .add-row input, .add-row select { margin: 0; }
+    .add-row #qty { width: 96px; }
+    .search-wrap { position: relative; flex: 1 1 320px; }
+    .search-wrap > i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 20px; color: var(--muted); pointer-events: none; }
+    .search-wrap input { width: 100%; padding-left: 44px; }
+    .results { position: absolute; z-index: 50; left: 0; right: 0; top: calc(100% + 6px); list-style: none; background: #fff;
+        border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 16px 40px rgba(23,32,26,.14); padding: 6px; max-height: 360px; overflow-y: auto; display: none; }
+    .results.show { display: block; }
+    .results li { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 12px; cursor: pointer; }
+    .results li.active, .results li:hover { background: var(--mint); }
+    .results li .emoji, .results li img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; font-size: 22px; margin: 0; flex: none; }
+    .results li b { display: block; font-weight: 600; }
+    .results li small { color: var(--muted); }
+    .results .none { cursor: default; color: var(--muted); }
+    .picked { display: flex; align-items: center; gap: 14px; margin-top: 16px; background: #fff; border-radius: 18px; padding: 12px 16px; border: 1px solid var(--line); }
+    .picked .emoji, .picked img { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; font-size: 28px; margin: 0; flex: none; }
+    .picked b { display: block; }
+    .picked .nums { display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--muted); font-size: 14px; }
+    .picked .nums strong { color: var(--ink); }
+    .popular { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .popular > span { font-size: 14px; color: var(--muted); font-weight: 600; margin-right: 4px; }
+    .popular > div { display: flex; flex-wrap: wrap; gap: 8px; }
+    .popular button { display: inline-flex; align-items: center; gap: 6px; font: 600 14px var(--body); background: #fff; border: 1.5px solid var(--line);
+        color: var(--ink); border-radius: 999px; padding: 4px 12px 4px 4px; cursor: pointer; }
+    .popular button:hover { border-color: var(--leaf-2); }
+    .popular .emoji, .popular img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; font-size: 16px; margin: 0; }
 </style>
 
 <script>
-    // Nutrition per 100 g (approximate, USDA FoodData Central)
-    const FOODS = {
-        rice:    { name: "Rice, white, cooked",   kcal: 130, p: 2.7,  c: 28.2, f: 0.3,  fib: 0.4 },
-        egg:     { name: "Egg, whole",            kcal: 143, p: 12.6, c: 0.7,  f: 9.5,  fib: 0 },
-        bread:   { name: "Bread, white",          kcal: 265, p: 9.0,  c: 49.0, f: 3.2,  fib: 2.7 },
-        tomato:  { name: "Tomato, raw",           kcal: 18,  p: 0.9,  c: 3.9,  f: 0.2,  fib: 1.2 },
-        potato:  { name: "Potato, raw",           kcal: 77,  p: 2.0,  c: 17.0, f: 0.1,  fib: 2.2 },
-        onion:   { name: "Onion, raw",            kcal: 40,  p: 1.1,  c: 9.3,  f: 0.1,  fib: 1.7 },
-        noodles: { name: "Noodles, cooked",       kcal: 138, p: 4.5,  c: 25.0, f: 2.1,  fib: 1.2 },
-        milk:    { name: "Milk, whole",           kcal: 61,  p: 3.2,  c: 4.8,  f: 3.3,  fib: 0 },
-        banana:  { name: "Banana",                kcal: 89,  p: 1.1,  c: 22.8, f: 0.3,  fib: 2.6 },
-        cheese:  { name: "Cheese, cheddar",       kcal: 403, p: 25.0, c: 1.3,  f: 33.0, fib: 0 },
-        cabbage: { name: "Cabbage, raw",          kcal: 25,  p: 1.3,  c: 5.8,  f: 0.1,  fib: 2.5 },
-        chicken: { name: "Chicken breast, cooked",kcal: 165, p: 31.0, c: 0,    f: 3.6,  fib: 0 },
-        apple:   { name: "Apple",                 kcal: 52,  p: 0.3,  c: 13.8, f: 0.2,  fib: 2.4 },
-        greens:  { name: "Broccoli, raw",         kcal: 34,  p: 2.8,  c: 6.6,  f: 0.4,  fib: 2.6 }
-    };
 
     let goal = 2000;
     let diary = [];
@@ -197,41 +221,129 @@
         } catch (e) {}
     }
 
-    // Fill the food list
-    const select = document.getElementById("foodSelect");
-    for (const key in FOODS) {
-        select.innerHTML += '<option value="' + key + '">' + FOODS[key].name + '</option>';
-    }
-
     // Nutrition for an amount in grams
     function calc(key, grams) {
-        const f = FOODS[key], k = grams / 100;
+        const f = FOODS[key] || FOODS.rice, k = grams / 100;
         return { kcal: f.kcal * k, p: f.p * k, c: f.c * k, f: f.f * k, fib: f.fib * k };
     }
     const r0 = n => Math.round(n);
     const r1 = n => Math.round(n * 10) / 10;
 
+    // ----- Search -----
+    const search = document.getElementById("foodSearch");
+    const results = document.getElementById("foodResults");
+    const qtyBox = document.getElementById("qty");
+    const unitBox = document.getElementById("unit");
+    let selected = "egg";
+    let matches = [];
+    let active = -1;
+
+    function findFoods(q) {
+        q = q.toLowerCase().trim();
+        if (!q) return Object.keys(FOODS).slice(0, 8);
+        const parts = q.split(/\s+/);
+        return Object.keys(FOODS)
+            .filter(k => parts.every(p => FOODS[k].words.includes(p)))
+            .sort((a, b) => (FOODS[b].name.toLowerCase().startsWith(q) ? 1 : 0) - (FOODS[a].name.toLowerCase().startsWith(q) ? 1 : 0))
+            .slice(0, 8);
+    }
+
+    function showResults() {
+        matches = findFoods(search.value);
+        active = matches.length ? 0 : -1;
+        if (!matches.length) {
+            results.innerHTML = '<li class="none">No match. Try another word, like "noodles" or "麵".</li>';
+        } else {
+            results.innerHTML = matches.map(function (k, i) {
+                const f = FOODS[k], p = f.portions[0];
+                return '<li role="option" id="opt' + i + '" class="' + (i === 0 ? "active" : "") + '" onmousedown="pickFood(\'' + k + '\')">' +
+                    foodPic(k, "r-photo") + '<span><b>' + f.name + '</b><small>1 ' + p.one + ' · ' + r0(f.kcal * p.g / 100) + ' kcal</small></span></li>';
+            }).join("");
+        }
+        results.classList.add("show");
+        search.setAttribute("aria-expanded", "true");
+    }
+
+    function hideResults() {
+        results.classList.remove("show");
+        search.setAttribute("aria-expanded", "false");
+    }
+
+    function pickFood(key) {
+        selected = key;
+        const f = FOODS[key];
+        search.value = f.name;
+        unitBox.innerHTML = f.portions.map((p, i) => '<option value="' + i + '">' + p.one + (p.one.includes("ml") ? "" : ' (' + p.g + ' g)') + '</option>').join("") +
+                            '<option value="g">grams (g)</option>';
+        qtyBox.value = 1;
+        hideResults();
+        preview();
+    }
+
+    search.addEventListener("focus", function () { search.select(); showResults(); });
+    search.addEventListener("input", showResults);
+    search.addEventListener("blur", function () { setTimeout(hideResults, 120); });
+    search.addEventListener("keydown", function (e) {
+        if (!results.classList.contains("show")) return;
+        const items = results.querySelectorAll("li[role=option]");
+        if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+            e.preventDefault();
+            if (!items.length) return;
+            active = (active + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+            items.forEach((li, i) => li.classList.toggle("active", i === active));
+            items[active].scrollIntoView({ block: "nearest" });
+        } else if (e.key === "Enter") {
+            e.preventDefault();
+            if (active >= 0 && matches[active]) pickFood(matches[active]);
+        } else if (e.key === "Escape") {
+            hideResults();
+        }
+    });
+    unitBox.addEventListener("change", function () {
+        qtyBox.value = unitBox.value === "g" ? 100 : 1;
+        preview();
+    });
+    qtyBox.addEventListener("input", preview);
+
+    // grams and a readable label for the current amount
+    function amountNow() {
+        const qty = Number(qtyBox.value);
+        const f = FOODS[selected];
+        if (unitBox.value === "g") return { grams: qty, label: qty + " g" };
+        const p = f.portions[Number(unitBox.value)];
+        const grams = Math.round(qty * p.g);
+        const name = qty === 1 ? p.one : p.many;
+        return { grams: grams, label: qty + " " + name + (p.one.includes("ml") ? (qty === 1 ? "" : " · " + grams + " ml") : " · " + grams + " g") };
+    }
+
     function preview() {
-        const grams = Number(document.getElementById("grams").value);
-        if (!grams || grams <= 0) { document.getElementById("preview").textContent = ""; return; }
-        const n = calc(select.value, grams);
-        document.getElementById("preview").textContent =
-            grams + " g = " + r0(n.kcal) + " kcal · " + r1(n.p) + " g protein · " + r1(n.c) + " g carbs · " + r1(n.f) + " g fat";
+        const box = document.getElementById("picked");
+        const a = amountNow();
+        if (!a.grams || a.grams <= 0) { box.innerHTML = ""; return; }
+        const n = calc(selected, a.grams);
+        box.innerHTML = foodPic(selected, "p-photo") + '<div><b>' + FOODS[selected].name + ' · ' + a.label + '</b>' +
+            '<div class="nums"><span><strong>' + r0(n.kcal) + '</strong> kcal</span><span><strong>' + r1(n.p) + ' g</strong> protein</span>' +
+            '<span><strong>' + r1(n.c) + ' g</strong> carbs</span><span><strong>' + r1(n.f) + ' g</strong> fat</span></div></div>';
     }
 
     function addEntry() {
-        const grams = Number(document.getElementById("grams").value);
+        const a = amountNow();
         const error = document.getElementById("error");
-        if (!grams || grams <= 0 || grams > 2000) {
-            error.textContent = "Please enter an amount between 1 and 2000 g.";
+        if (!a.grams || a.grams <= 0 || a.grams > 3000) {
+            error.textContent = "Enter an amount, for example 1 egg or 150 g.";
             return;
         }
         error.textContent = "";
-        diary.push({ key: select.value, grams: grams, meal: document.getElementById("meal").value });
+        diary.push({ key: selected, grams: a.grams, label: a.label, meal: document.getElementById("meal").value });
         save();
         render();
-        preview();
     }
+
+    // Popular quick picks
+    document.getElementById("popular").innerHTML =
+        ["egg", "baozi", "dumpling", "hamegg", "bubbletea", "coffee", "teaegg", "rice", "jipai", "onigiri"].map(function (k) {
+            return '<button type="button" onclick="pickFood(\'' + k + '\')">' + foodPic(k, "q-photo") + FOODS[k].name.split(" (")[0] + '</button>';
+        }).join("");
 
     function removeEntry(i) { diary.splice(i, 1); save(); render(); }
 
@@ -321,8 +433,8 @@
             html += '<tr class="meal-row"><td colspan="8">' + meal + '</td></tr>';
             rows.forEach(function (x) {
                 const n = calc(x.e.key, x.e.grams);
-                html += '<tr><td>' + photoTag(x.e.key, "diary-photo", 120) + '</td>' +
-                        '<td>' + FOODS[x.e.key].name + '</td><td>' + x.e.grams + ' g</td>' +
+                html += '<tr><td>' + foodPic(x.e.key, "diary-photo") + '</td>' +
+                        '<td>' + (FOODS[x.e.key] ? FOODS[x.e.key].name : x.e.key) + '</td><td>' + (x.e.label || x.e.grams + ' g') + '</td>' +
                         '<td>' + r0(n.kcal) + '</td><td>' + r1(n.p) + ' g</td><td>' + r1(n.c) + ' g</td><td>' + r1(n.f) + ' g</td>' +
                         '<td><button class="delete" onclick="removeEntry(' + x.i + ')" title="Remove">✕</button></td></tr>';
             });
@@ -332,7 +444,7 @@
         body.innerHTML = html;
     }
 
-    preview();
+    pickFood("egg");
     render();
 </script>
 
